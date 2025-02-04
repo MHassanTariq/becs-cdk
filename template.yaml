@@ -1,0 +1,410 @@
+Resources:
+  ProductsTable241ADBFF:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: products
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: BecsCdkStack/ProductsTable/Resource
+  BecsApiGateway1D5DB2B6:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: API Gateway with BECS Lambdas.
+      Name: BECS API Gateway
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Resource
+  BecsApiGatewayCloudWatchRoleE8C26C9B:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/CloudWatchRole/Resource
+  BecsApiGatewayAccountEDEB47D1:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - BecsApiGatewayCloudWatchRoleE8C26C9B
+          - Arn
+    DependsOn:
+      - BecsApiGateway1D5DB2B6
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Account
+  BecsApiGatewayDeployment568E931A6a307e015f03a66cb93ed3938d3b9a80:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      Description: API Gateway with BECS Lambdas.
+      RestApiId:
+        Ref: BecsApiGateway1D5DB2B6
+    DependsOn:
+      - BecsApiGatewayproductsGET66F434DC
+      - BecsApiGatewayproductsPOST13377770
+      - BecsApiGatewayproducts50D93ED4
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Deployment/Resource
+  BecsApiGatewayDeploymentStageprod3FC6D306:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: BecsApiGatewayDeployment568E931A6a307e015f03a66cb93ed3938d3b9a80
+      RestApiId:
+        Ref: BecsApiGateway1D5DB2B6
+      StageName: prod
+    DependsOn:
+      - BecsApiGatewayAccountEDEB47D1
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/DeploymentStage.prod/Resource
+  BecsApiGatewayproducts50D93ED4:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - BecsApiGateway1D5DB2B6
+          - RootResourceId
+      PathPart: products
+      RestApiId:
+        Ref: BecsApiGateway1D5DB2B6
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/Resource
+  BecsApiGatewayproductsGETApiPermissionBecsCdkStackBecsApiGateway9CE4D45CGETproductsB378D700:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - GetProductsFunction60F0D6E5
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:eu-north-1:490004655195:"
+            - Ref: BecsApiGateway1D5DB2B6
+            - /
+            - Ref: BecsApiGatewayDeploymentStageprod3FC6D306
+            - /GET/products
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/GET/ApiPermission.BecsCdkStackBecsApiGateway9CE4D45C.GET..products
+  BecsApiGatewayproductsGETApiPermissionTestBecsCdkStackBecsApiGateway9CE4D45CGETproducts6B97E497:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - GetProductsFunction60F0D6E5
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:eu-north-1:490004655195:"
+            - Ref: BecsApiGateway1D5DB2B6
+            - /test-invoke-stage/GET/products
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/GET/ApiPermission.Test.BecsCdkStackBecsApiGateway9CE4D45C.GET..products
+  BecsApiGatewayproductsGET66F434DC:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :apigateway:eu-north-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - GetProductsFunction60F0D6E5
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: BecsApiGatewayproducts50D93ED4
+      RestApiId:
+        Ref: BecsApiGateway1D5DB2B6
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/GET/Resource
+  BecsApiGatewayproductsPOSTApiPermissionBecsCdkStackBecsApiGateway9CE4D45CPOSTproductsB8EB6D86:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CreateProductFunctionD4A3469E
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:eu-north-1:490004655195:"
+            - Ref: BecsApiGateway1D5DB2B6
+            - /
+            - Ref: BecsApiGatewayDeploymentStageprod3FC6D306
+            - /POST/products
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/POST/ApiPermission.BecsCdkStackBecsApiGateway9CE4D45C.POST..products
+  BecsApiGatewayproductsPOSTApiPermissionTestBecsCdkStackBecsApiGateway9CE4D45CPOSTproducts37B9C445:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CreateProductFunctionD4A3469E
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:eu-north-1:490004655195:"
+            - Ref: BecsApiGateway1D5DB2B6
+            - /test-invoke-stage/POST/products
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/POST/ApiPermission.Test.BecsCdkStackBecsApiGateway9CE4D45C.POST..products
+  BecsApiGatewayproductsPOST13377770:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :apigateway:eu-north-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CreateProductFunctionD4A3469E
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: BecsApiGatewayproducts50D93ED4
+      RestApiId:
+        Ref: BecsApiGateway1D5DB2B6
+    Metadata:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/POST/Resource
+  GetProductsFunctionServiceRole75956CC7:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: BecsCdkStack/GetProductsFunction/ServiceRole/Resource
+  GetProductsFunctionServiceRoleDefaultPolicyA81485BC:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:Query
+              - dynamodb:GetItem
+              - dynamodb:Scan
+              - dynamodb:ConditionCheckItem
+              - dynamodb:BatchWriteItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+              - dynamodb:DescribeTable
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - ProductsTable241ADBFF
+                  - Arn
+              - Ref: AWS::NoValue
+        Version: "2012-10-17"
+      PolicyName: GetProductsFunctionServiceRoleDefaultPolicyA81485BC
+      Roles:
+        - Ref: GetProductsFunctionServiceRole75956CC7
+    Metadata:
+      aws:cdk:path: BecsCdkStack/GetProductsFunction/ServiceRole/DefaultPolicy/Resource
+  GetProductsFunction60F0D6E5:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-490004655195-eu-north-1
+        S3Key: 953051a188f383935970484d3a7ddf9b0e0dcbc05bf5277d4deda4e32d50f2bf.zip
+      Environment:
+        Variables:
+          AWS_ACCOUNT_ID: "490004655195"
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          TABLE_NAME:
+            Ref: ProductsTable241ADBFF
+      Handler: index.getProducts
+      MemorySize: 1028
+      Role:
+        Fn::GetAtt:
+          - GetProductsFunctionServiceRole75956CC7
+          - Arn
+      Runtime: nodejs20.x
+      TracingConfig:
+        Mode: Active
+    DependsOn:
+      - GetProductsFunctionServiceRoleDefaultPolicyA81485BC
+      - GetProductsFunctionServiceRole75956CC7
+    Metadata:
+      aws:cdk:path: BecsCdkStack/GetProductsFunction/Resource
+      aws:asset:path: asset.953051a188f383935970484d3a7ddf9b0e0dcbc05bf5277d4deda4e32d50f2bf
+      aws:asset:is-bundled: true
+      aws:asset:property: Code
+  CreateProductFunctionServiceRole54C12217:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: BecsCdkStack/CreateProductFunction/ServiceRole/Resource
+  CreateProductFunctionServiceRoleDefaultPolicy71144764:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:Query
+              - dynamodb:GetItem
+              - dynamodb:Scan
+              - dynamodb:ConditionCheckItem
+              - dynamodb:BatchWriteItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+              - dynamodb:DescribeTable
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - ProductsTable241ADBFF
+                  - Arn
+              - Ref: AWS::NoValue
+        Version: "2012-10-17"
+      PolicyName: CreateProductFunctionServiceRoleDefaultPolicy71144764
+      Roles:
+        - Ref: CreateProductFunctionServiceRole54C12217
+    Metadata:
+      aws:cdk:path: BecsCdkStack/CreateProductFunction/ServiceRole/DefaultPolicy/Resource
+  CreateProductFunctionD4A3469E:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-490004655195-eu-north-1
+        S3Key: 953051a188f383935970484d3a7ddf9b0e0dcbc05bf5277d4deda4e32d50f2bf.zip
+      Environment:
+        Variables:
+          AWS_ACCOUNT_ID: "490004655195"
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          TABLE_NAME:
+            Ref: ProductsTable241ADBFF
+      Handler: index.createProduct
+      MemorySize: 1028
+      Role:
+        Fn::GetAtt:
+          - CreateProductFunctionServiceRole54C12217
+          - Arn
+      Runtime: nodejs20.x
+      TracingConfig:
+        Mode: Active
+    DependsOn:
+      - CreateProductFunctionServiceRoleDefaultPolicy71144764
+      - CreateProductFunctionServiceRole54C12217
+    Metadata:
+      aws:cdk:path: BecsCdkStack/CreateProductFunction/Resource
+      aws:asset:path: asset.953051a188f383935970484d3a7ddf9b0e0dcbc05bf5277d4deda4e32d50f2bf
+      aws:asset:is-bundled: true
+      aws:asset:property: Code
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/1VPTW+DMAz9Lb0Hj7bSeqabdtuH6O7IBK8NkARhZwgh/vsUWDV2eh9+sp8PsD89QrrDgRNdNUlrSpgugrpROHAxVaND66sSpk8sW1JPX24hs8LOXFFowBGmnFiyzsTphmZa++BEPVPX+tGSk+hu1EXwuqxcSU7sQ6/pjPwnfneu/JXk5qtorWxWBi1MuV+bLfjhW6PHKFc2qxZtWSFM0aLeGmbjXQy8BKfFeHePFM5XVDO8LXCfKj4WyEzCkEVQfIRz0A1JLDr/a/oepAuillx8yrjr9oFZxQtQ88P3IYX9CdJdzcYkfXBiLEG+4g/1+nAolQEAAA==
+    Metadata:
+      aws:cdk:path: BecsCdkStack/CDKMetadata/Default
+Outputs:
+  BecsApiGatewayEndpoint6998FDD0:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: BecsApiGateway1D5DB2B6
+          - .execute-api.eu-north-1.
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: BecsApiGatewayDeploymentStageprod3FC6D306
+          - /
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+
