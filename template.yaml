@@ -3,10 +3,10 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: Id
+        - AttributeName: id
           AttributeType: S
       KeySchema:
-        - AttributeName: Id
+        - AttributeName: id
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 1
@@ -56,23 +56,23 @@ Resources:
     DeletionPolicy: Retain
     Metadata:
       aws:cdk:path: BecsCdkStack/BecsApiGateway/Account
-  BecsApiGatewayDeployment568E931A6a307e015f03a66cb93ed3938d3b9a80:
+  BecsApiGatewayDeployment568E931A7f3ac93ea3ae8dda97325968eb337d4e:
     Type: AWS::ApiGateway::Deployment
     Properties:
       Description: API Gateway with BECS Lambdas.
       RestApiId:
         Ref: BecsApiGateway1D5DB2B6
     DependsOn:
-      - BecsApiGatewayproductsGET66F434DC
-      - BecsApiGatewayproductsPOST13377770
-      - BecsApiGatewayproducts50D93ED4
+      - BecsApiGatewayreportsGET493B545F
+      - BecsApiGatewayreportsPOST96506AE4
+      - BecsApiGatewayreportsF831456D
     Metadata:
       aws:cdk:path: BecsCdkStack/BecsApiGateway/Deployment/Resource
   BecsApiGatewayDeploymentStageprod3FC6D306:
     Type: AWS::ApiGateway::Stage
     Properties:
       DeploymentId:
-        Ref: BecsApiGatewayDeployment568E931A6a307e015f03a66cb93ed3938d3b9a80
+        Ref: BecsApiGatewayDeployment568E931A7f3ac93ea3ae8dda97325968eb337d4e
       RestApiId:
         Ref: BecsApiGateway1D5DB2B6
       StageName: prod
@@ -80,25 +80,25 @@ Resources:
       - BecsApiGatewayAccountEDEB47D1
     Metadata:
       aws:cdk:path: BecsCdkStack/BecsApiGateway/DeploymentStage.prod/Resource
-  BecsApiGatewayproducts50D93ED4:
+  BecsApiGatewayreportsF831456D:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId:
         Fn::GetAtt:
           - BecsApiGateway1D5DB2B6
           - RootResourceId
-      PathPart: products
+      PathPart: reports
       RestApiId:
         Ref: BecsApiGateway1D5DB2B6
     Metadata:
-      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/Resource
-  BecsApiGatewayproductsGETApiPermissionBecsCdkStackBecsApiGateway9CE4D45CGETproductsB378D700:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/reports/Resource
+  BecsApiGatewayreportsGETApiPermissionBecsCdkStackBecsApiGateway9CE4D45CGETreportsF1CBE695:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
       FunctionName:
         Fn::GetAtt:
-          - GetProductsFunction60F0D6E5
+          - GetReportsFunctionC7A3A071
           - Arn
       Principal: apigateway.amazonaws.com
       SourceArn:
@@ -110,16 +110,16 @@ Resources:
             - Ref: BecsApiGateway1D5DB2B6
             - /
             - Ref: BecsApiGatewayDeploymentStageprod3FC6D306
-            - /GET/products
+            - /GET/reports
     Metadata:
-      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/GET/ApiPermission.BecsCdkStackBecsApiGateway9CE4D45C.GET..products
-  BecsApiGatewayproductsGETApiPermissionTestBecsCdkStackBecsApiGateway9CE4D45CGETproducts6B97E497:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/reports/GET/ApiPermission.BecsCdkStackBecsApiGateway9CE4D45C.GET..reports
+  BecsApiGatewayreportsGETApiPermissionTestBecsCdkStackBecsApiGateway9CE4D45CGETreports60C0C69A:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
       FunctionName:
         Fn::GetAtt:
-          - GetProductsFunction60F0D6E5
+          - GetReportsFunctionC7A3A071
           - Arn
       Principal: apigateway.amazonaws.com
       SourceArn:
@@ -129,10 +129,10 @@ Resources:
             - Ref: AWS::Partition
             - ":execute-api:eu-north-1:490004655195:"
             - Ref: BecsApiGateway1D5DB2B6
-            - /test-invoke-stage/GET/products
+            - /test-invoke-stage/GET/reports
     Metadata:
-      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/GET/ApiPermission.Test.BecsCdkStackBecsApiGateway9CE4D45C.GET..products
-  BecsApiGatewayproductsGET66F434DC:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/reports/GET/ApiPermission.Test.BecsCdkStackBecsApiGateway9CE4D45C.GET..reports
+  BecsApiGatewayreportsGET493B545F:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
@@ -147,16 +147,16 @@ Resources:
               - Ref: AWS::Partition
               - :apigateway:eu-north-1:lambda:path/2015-03-31/functions/
               - Fn::GetAtt:
-                  - GetProductsFunction60F0D6E5
+                  - GetReportsFunctionC7A3A071
                   - Arn
               - /invocations
       ResourceId:
-        Ref: BecsApiGatewayproducts50D93ED4
+        Ref: BecsApiGatewayreportsF831456D
       RestApiId:
         Ref: BecsApiGateway1D5DB2B6
     Metadata:
-      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/GET/Resource
-  BecsApiGatewayproductsPOSTApiPermissionBecsCdkStackBecsApiGateway9CE4D45CPOSTproductsB8EB6D86:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/reports/GET/Resource
+  BecsApiGatewayreportsPOSTApiPermissionBecsCdkStackBecsApiGateway9CE4D45CPOSTreportsCBDE52A3:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
@@ -174,10 +174,10 @@ Resources:
             - Ref: BecsApiGateway1D5DB2B6
             - /
             - Ref: BecsApiGatewayDeploymentStageprod3FC6D306
-            - /POST/products
+            - /POST/reports
     Metadata:
-      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/POST/ApiPermission.BecsCdkStackBecsApiGateway9CE4D45C.POST..products
-  BecsApiGatewayproductsPOSTApiPermissionTestBecsCdkStackBecsApiGateway9CE4D45CPOSTproducts37B9C445:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/reports/POST/ApiPermission.BecsCdkStackBecsApiGateway9CE4D45C.POST..reports
+  BecsApiGatewayreportsPOSTApiPermissionTestBecsCdkStackBecsApiGateway9CE4D45CPOSTreportsCDC0F43A:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
@@ -193,10 +193,10 @@ Resources:
             - Ref: AWS::Partition
             - ":execute-api:eu-north-1:490004655195:"
             - Ref: BecsApiGateway1D5DB2B6
-            - /test-invoke-stage/POST/products
+            - /test-invoke-stage/POST/reports
     Metadata:
-      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/POST/ApiPermission.Test.BecsCdkStackBecsApiGateway9CE4D45C.POST..products
-  BecsApiGatewayproductsPOST13377770:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/reports/POST/ApiPermission.Test.BecsCdkStackBecsApiGateway9CE4D45C.POST..reports
+  BecsApiGatewayreportsPOST96506AE4:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
@@ -215,12 +215,12 @@ Resources:
                   - Arn
               - /invocations
       ResourceId:
-        Ref: BecsApiGatewayproducts50D93ED4
+        Ref: BecsApiGatewayreportsF831456D
       RestApiId:
         Ref: BecsApiGateway1D5DB2B6
     Metadata:
-      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/products/POST/Resource
-  GetProductsFunctionServiceRole75956CC7:
+      aws:cdk:path: BecsCdkStack/BecsApiGateway/Default/reports/POST/Resource
+  GetReportsFunctionServiceRole35432670:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -237,8 +237,8 @@ Resources:
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
-      aws:cdk:path: BecsCdkStack/GetProductsFunction/ServiceRole/Resource
-  GetProductsFunctionServiceRoleDefaultPolicyA81485BC:
+      aws:cdk:path: BecsCdkStack/GetReportsFunction/ServiceRole/Resource
+  GetReportsFunctionServiceRoleDefaultPolicyD29C3A9C:
     Type: AWS::IAM::Policy
     Properties:
       PolicyDocument:
@@ -268,38 +268,36 @@ Resources:
                   - Arn
               - Ref: AWS::NoValue
         Version: "2012-10-17"
-      PolicyName: GetProductsFunctionServiceRoleDefaultPolicyA81485BC
+      PolicyName: GetReportsFunctionServiceRoleDefaultPolicyD29C3A9C
       Roles:
-        - Ref: GetProductsFunctionServiceRole75956CC7
+        - Ref: GetReportsFunctionServiceRole35432670
     Metadata:
-      aws:cdk:path: BecsCdkStack/GetProductsFunction/ServiceRole/DefaultPolicy/Resource
-  GetProductsFunction60F0D6E5:
+      aws:cdk:path: BecsCdkStack/GetReportsFunction/ServiceRole/DefaultPolicy/Resource
+  GetReportsFunctionC7A3A071:
     Type: AWS::Lambda::Function
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-490004655195-eu-north-1
-        S3Key: 953051a188f383935970484d3a7ddf9b0e0dcbc05bf5277d4deda4e32d50f2bf.zip
+        S3Key: 8def08512cf29d8b766d0f11dda9731bc5aeb7febd786fcfd0c8fcd81388af2f.zip
       Environment:
         Variables:
           AWS_ACCOUNT_ID: "490004655195"
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          TABLE_NAME:
-            Ref: ProductsTable241ADBFF
-      Handler: index.getProducts
+      Handler: index.getReportListHandler
       MemorySize: 1028
       Role:
         Fn::GetAtt:
-          - GetProductsFunctionServiceRole75956CC7
+          - GetReportsFunctionServiceRole35432670
           - Arn
       Runtime: nodejs20.x
       TracingConfig:
         Mode: Active
     DependsOn:
-      - GetProductsFunctionServiceRoleDefaultPolicyA81485BC
-      - GetProductsFunctionServiceRole75956CC7
+      - GetReportsFunctionServiceRoleDefaultPolicyD29C3A9C
+      - GetReportsFunctionServiceRole35432670
     Metadata:
-      aws:cdk:path: BecsCdkStack/GetProductsFunction/Resource
-      aws:asset:path: asset.953051a188f383935970484d3a7ddf9b0e0dcbc05bf5277d4deda4e32d50f2bf
+      aws:cdk:path: BecsCdkStack/GetReportsFunction/Resource
+      aws:asset:path: asset.8def08512cf29d8b766d0f11dda9731bc5aeb7febd786fcfd0c8fcd81388af2f
       aws:asset:is-bundled: true
       aws:asset:property: Code
   CreateProductFunctionServiceRole54C12217:
@@ -360,14 +358,12 @@ Resources:
     Properties:
       Code:
         S3Bucket: cdk-hnb659fds-assets-490004655195-eu-north-1
-        S3Key: 953051a188f383935970484d3a7ddf9b0e0dcbc05bf5277d4deda4e32d50f2bf.zip
+        S3Key: 8def08512cf29d8b766d0f11dda9731bc5aeb7febd786fcfd0c8fcd81388af2f.zip
       Environment:
         Variables:
           AWS_ACCOUNT_ID: "490004655195"
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          TABLE_NAME:
-            Ref: ProductsTable241ADBFF
-      Handler: index.createProduct
+      Handler: index.createReportHandler
       MemorySize: 1028
       Role:
         Fn::GetAtt:
@@ -381,7 +377,7 @@ Resources:
       - CreateProductFunctionServiceRole54C12217
     Metadata:
       aws:cdk:path: BecsCdkStack/CreateProductFunction/Resource
-      aws:asset:path: asset.953051a188f383935970484d3a7ddf9b0e0dcbc05bf5277d4deda4e32d50f2bf
+      aws:asset:path: asset.8def08512cf29d8b766d0f11dda9731bc5aeb7febd786fcfd0c8fcd81388af2f
       aws:asset:is-bundled: true
       aws:asset:property: Code
   CDKMetadata:
